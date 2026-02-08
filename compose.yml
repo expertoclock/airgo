@@ -7,11 +7,11 @@ services:
       dockerfile: Dockerfile
     container_name: airgo_app
     image: airgo:latest
-    ports:
-      - "8081:8080"
+    # Using host mode avoids the corrupted Docker NAT/iptables chains
+    network_mode: host
     environment:
       - GIN_MODE=release
-      - PORT=8080
+      - PORT=8081
       - UPLOAD_PATH=/app/uploads
     volumes:
       - ./uploads:/app/uploads
@@ -22,17 +22,17 @@ services:
           memory: 512M
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
 
-  # The Significant Change: Cloudflare Tunnel
-  # This creates a public URL for your local app
   tunnel:
     image: cloudflare/cloudflared:latest
-    command: tunnel --url http://airgo:8080 --no-autoupdate
+    # Points to localhost because both are on the host network
+    command: tunnel --url http://localhost:8081 --no-autoupdate
+    network_mode: host
     restart: unless-stopped
     depends_on:
       - airgo
