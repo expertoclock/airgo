@@ -27,12 +27,12 @@ tidy: ## Clean up go.mod and go.sum inside Docker
 
 up: ## Start the application in Docker (Detached)
 	mkdir -p uploads
-	docker compose build --build-arg GOPROXY=https://goproxy.io,direct
+	docker build --network=host -t airgo:latest .
 	docker compose up -d
 
 rebuild: ## Force a clean rebuild without using cache
 	mkdir -p uploads
-	docker compose build --no-cache --build-arg GOPROXY=https://goproxy.io,direct
+	docker build --network=host --no-cache -t airgo:latest .
 	docker compose up -d
 
 prune: ## Remove all unused Docker build cache

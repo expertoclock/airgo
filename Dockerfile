@@ -1,21 +1,29 @@
-# Stage 1: Builder
-FROM golang:1.23-alpine AS builder
+# Stage 1: Builder (Debian-based for better networking)
+FROM golang:1.23 AS builder
 
-# Set an alternative Go proxy to avoid timeout issues in some regions
-ENV GOPROXY=https://goproxy.io,direct
+# Accept build-time proxy settings
+ARG GOPROXY=https://proxy.golang.org,direct
+ENV GOPROXY=$GOPROXY
+ENV GOSUMDB=off
 
 WORKDIR /app
 
-# No apk add git needed for standard public modules
+# Install git (required for some go modules)
+RUN apt-get update && apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy only dependency files first
 COPY go.mod go.sum ./
+# Attempt to download dependencies
 RUN go mod download
 
+# Copy source
 COPY . .
 
-# Build with optimizations
+# Build optimized binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/airgo .
 
-# Stage 2: Runner
+# Stage 2: Runner (Alpine for production)
 FROM alpine:latest
 
 # Create non-root user
@@ -34,5 +42,5 @@ RUN mkdir -p uploads && chown -R appuser:appgroup /app
 USER appuser
 EXPOSE 8081
 
-# Use built-in wget for healthcheck instead of curl to avoid apk add issues
+# Healthcheck will use wget (pre-installed in alpine)
 CMD ["./airgo"]
