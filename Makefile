@@ -23,6 +23,14 @@ up: ## Start the application in Docker (Detached)
 	mkdir -p uploads
 	docker compose up -d --build
 
+rebuild: ## Force a clean rebuild without using cache
+	mkdir -p uploads
+	docker compose build --no-cache
+	docker compose up -d
+
+prune: ## Remove all unused Docker build cache
+	docker builder prune -f
+
 down: ## Stop the Docker application
 	docker compose down
 
