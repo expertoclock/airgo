@@ -9,37 +9,30 @@ services:
     image: airgo:latest
     ports:
       - "8081:8080"
-
-    # Environment variables (Best practice for configuration)
     environment:
       - GIN_MODE=release
       - PORT=8080
-
-    # Persistence
+      - UPLOAD_PATH=/app/uploads
     volumes:
       - ./uploads:/app/uploads
-
-    # Resource Limits (Crucial for DevOps/Production)
-    # Prevents memory leaks from crashing the host server
     deploy:
       resources:
         limits:
           cpus: '0.50'
           memory: 512M
-        reservations:
-          cpus: '0.10'
-          memory: 64M
-
-    # Security Hardening
-    # read_only: true # Filesystem is read-only except for volumes (Optional strict mode)
-    cap_drop:
-      - ALL # Drop all Linux capabilities (Root cannot do advanced system ops)
-
     restart: unless-stopped
-
-    # Healthcheck (Self-healing)
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+
+  # The Significant Change: Cloudflare Tunnel
+  # This creates a public URL for your local app
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://airgo:8080 --no-autoupdate
+    restart: unless-stopped
+    depends_on:
+      - airgo
+
       interval: 30s
       timeout: 10s
       retries: 3

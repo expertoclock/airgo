@@ -37,6 +37,9 @@ down: ## Stop the Docker application
 logs: ## View Docker logs
 	docker compose logs -f
 
+url: ## Show the public Cloudflare Tunnel URL
+	@docker compose logs tunnel 2>&1 | grep -o 'https://.*\.trycloudflare.com' | tail -n 1
+
 qr: ## Show QR code for mobile access (requires qrencode)
 	@IP=$$(hostname -I | awk '{print $$1}'); \
 	URL="http://$$IP:8081"; \
