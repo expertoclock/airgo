@@ -21,11 +21,12 @@ test: ## Run unit tests
 
 up: ## Start the application in Docker (Detached)
 	mkdir -p uploads
-	docker compose up -d --build
+	docker compose build --build-arg GOPROXY=https://goproxy.io,direct
+	docker compose up -d
 
 rebuild: ## Force a clean rebuild without using cache
 	mkdir -p uploads
-	docker compose build --no-cache
+	docker compose build --no-cache --build-arg GOPROXY=https://goproxy.io,direct
 	docker compose up -d
 
 prune: ## Remove all unused Docker build cache
