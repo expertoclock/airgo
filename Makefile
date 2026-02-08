@@ -16,8 +16,14 @@ build: ## Build the Go binary locally
 run: ## Run the app locally (requires Go installed)
 	go run main.go
 
-test: ## Run unit tests
+test: ## Run unit tests locally
 	go test -v ./...
+
+test-docker: ## Run unit tests inside a Docker container
+	docker run --rm -v $$(pwd):/app -w /app golang:1.23-alpine go test -v ./...
+
+tidy: ## Clean up go.mod and go.sum inside Docker
+	docker run --rm -v $$(pwd):/app -w /app -e GOPROXY=https://goproxy.io,direct golang:1.23-alpine go mod tidy
 
 up: ## Start the application in Docker (Detached)
 	mkdir -p uploads
