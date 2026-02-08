@@ -13,6 +13,7 @@ services:
     # Environment variables (Best practice for configuration)
     environment:
       - GIN_MODE=release
+      - PORT=8080
 
     # Persistence
     volumes:
