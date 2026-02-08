@@ -29,6 +29,16 @@ down: ## Stop the Docker application
 logs: ## View Docker logs
 	docker compose logs -f
 
+qr: ## Show QR code for mobile access (requires qrencode)
+	@IP=$$(hostname -I | awk '{print $$1}'); \
+	URL="http://$$IP:8081"; \
+	echo "\033[32m\033[1mAirGo LAN URL:\033[0m $$URL"; \
+	if command -v qrencode >/dev/null 2>&1; then \
+		qrencode -t ansiutf8 "$$URL"; \
+	else \
+		echo "\033[33mTip: Install 'qrencode' to show a QR code here (sudo apt install qrencode)\033[0m"; \
+	fi
+
 clean: ## Clean up binaries and temporary files
 	rm -f $(APP_NAME)
 	rm -rf uploads/*
