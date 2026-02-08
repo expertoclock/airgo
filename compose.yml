@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile
     container_name: airgo_app
     image: airgo:latest
-    # Using host mode avoids the corrupted Docker NAT/iptables chains
     network_mode: host
     environment:
       - GIN_MODE=release
@@ -27,12 +26,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
-
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    # Points to localhost because both are on the host network
-    command: tunnel --url http://localhost:8081 --no-autoupdate
-    network_mode: host
-    restart: unless-stopped
-    depends_on:
-      - airgo
