@@ -23,6 +23,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
 
   # The Significant Change: Cloudflare Tunnel
   # This creates a public URL for your local app
@@ -32,8 +36,3 @@ services:
     restart: unless-stopped
     depends_on:
       - airgo
-
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
