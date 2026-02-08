@@ -52,7 +52,21 @@ AirGo is a lightweight, futuristic, and secure file-sharing tool designed specif
    ```
 
 3. **Access the tool:**
-   Open your browser and navigate to `http://localhost:8081`.
+   - Locally: Open `http://localhost:8081`.
+   - On your LAN (Mobile/Other PCs): Open `http://<your-laptop-ip>:8081`.
+     *(Find your IP using `hostname -I`)*.
+
+---
+
+## 📱 LAN Access (Mobile)
+
+To share files with your mobile device:
+1. Ensure both devices are on the same Wi-Fi.
+2. Find your laptop's IP address: `hostname -I`.
+3. Type `http://<IP_ADDRESS>:8081` into your phone's browser.
+4. **Firewall Note:** If you can't connect, you may need to allow port 8081:
+   `sudo ufw allow 8081/tcp`
+
 
 ---
 
