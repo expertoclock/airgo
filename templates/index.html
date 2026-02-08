@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirGo | High-Speed LAN Share</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        cyan: {
+                            450: '#00d0ff',
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+        }
+        .neon-text {
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2), inset 0 0 15px rgba(34, 211, 238, 0.05);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white overflow-x-hidden relative" x-data="airgoApp()">
+
+    <!-- Ambient Background Glows -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-6xl mx-auto px-6 py-12 min-h-screen flex flex-col">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-16">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-paper-plane text-white text-lg"></i>
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight text-white"><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 neon-text">Air</span>Go</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="px-4 py-2 rounded-full glass flex items-center gap-2 text-sm font-medium text-cyan-400/80">
+                    <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+                    LAN Active
+                </div>
+                <button @click="fetchFiles()" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center transition-colors group">
+                    <i class="fa-solid fa-rotate-right text-slate-400 group-hover:text-cyan-400 transition-transform group-hover:rotate-180 duration-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero / Upload Zone -->
+        <div class="mb-16">
+            <div 
+                @dragover.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false"
+                @drop.prevent="handleDrop($event)"
+                class="relative w-full h-64 rounded-3xl transition-all duration-300 group cursor-pointer overflow-hidden"
+                :class="isDragging ? 'bg-cyan-900/10 border-cyan-400 scale-[1.01] shadow-[0_0_50px_rgba(34,211,238,0.15)]' : 'glass-panel hover:bg-white/5'"
+            >
+                <!-- Dotted Border (SVG for customized spacing) -->
+                <div class="absolute inset-0 rounded-3xl border-2 border-dashed transition-colors duration-300 z-10"
+                     :class="isDragging ? 'border-cyan-400 neon-border' : 'border-slate-600 group-hover:border-slate-500'"></div>
+                
+                <!-- Input trigger -->
+                <input type="file" class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer" @change="handleFileSelect($event)">
+
+                <!-- Content -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-900 flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform duration-300 border border-slate-700">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-cyan-400 animate-float"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">Drop files here</h2>
+                    <p class="text-slate-400">or click to browse your device</p>
+                </div>
+
+                <!-- Progress Overlay -->
+                <div x-show="uploading" x-transition.opacity class="absolute inset-0 z-30 bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div class="w-64 text-center">
+                        <div class="flex justify-between text-sm mb-2 font-medium">
+                            <span class="text-cyan-400">Uploading...</span>
+                            <span class="text-white" x-text="progress + '%'"></span>
+                        </div>
+                        <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-150 ease-out" :style="`width: ${progress}%`"></div>
+                        </div>
+                        <p class="mt-4 text-xs text-slate-500" x-text="currentFileName"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Grid -->
+        <div class="flex-1">
+            <h3 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                <i class="fa-regular fa-folder-open text-cyan-400"></i>
+                Shared Files
+                <span class="text-xs px-2 py-1 rounded-md bg-slate-800 text-slate-400 font-normal" x-text="files.length"></span>
+            </h3>
+
+            <!-- Loading State -->
+            <div x-show="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="i in 3">
+                    <div class="h-24 rounded-xl bg-slate-800/50 animate-pulse"></div>
+                </template>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="!isLoading && files.length === 0" x-cloak class="text-center py-20 opacity-50">
+                <i class="fa-solid fa-wind text-4xl mb-4 text-slate-600"></i>
+                <p>It's quiet here. Share something!</p>
+            </div>
+
+            <!-- Grid -->
+            <div x-show="!isLoading && files.length > 0" x-cloak class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="file in files" :key="file.name">
+                    <div class="glass-panel p-5 rounded-xl group hover:bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+                        <!-- Hover Glow -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-cyan-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                        
+                        <div class="flex items-start justify-between relative z-10">
+                            <div class="flex items-center gap-4 overflow-hidden">
+                                <div class="w-12 h-12 rounded-lg bg-slate-800 flex-shrink-0 flex items-center justify-center text-xl text-cyan-400 border border-slate-700">
+                                    <i :class="getFileIcon(file.name)"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-medium text-white truncate" x-text="file.name" :title="file.name"></h4>
+                                    <p class="text-xs text-slate-400 mt-1" x-text="file.size"></p>
+                                </div>
+                            </div>
+                            <a :href="file.url" download class="w-10 h-10 rounded-lg bg-slate-800 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-slate-400 transition-all duration-300 shadow-lg" title="Download">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50 pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div 
+                x-show="toast.visible"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="translate-y-2 opacity-0 scale-95"
+                x-transition:enter-end="translate-y-0 opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="translate-y-0 opacity-100 scale-100"
+                x-transition:leave-end="translate-y-2 opacity-0 scale-95"
+                class="glass-panel px-4 py-3 rounded-lg shadow-2xl border-l-4 min-w-[300px] flex items-center justify-between pointer-events-auto"
+                :class="toast.type === 'success' ? 'border-cyan-400' : 'border-red-500'"
+            >
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs" :class="toast.type === 'success' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-red-500/20 text-red-500'">
+                        <i :class="toast.type === 'success' ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white" x-text="toast.title"></p>
+                        <p class="text-xs text-slate-400" x-text="toast.message"></p>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+        function airgoApp() {
+            return {
+                files: [],
+                isDragging: false,
+                uploading: false,
+                progress: 0,
+                currentFileName: '',
+                isLoading: true,
+                toasts: [],
+                
+                init() {
+                    this.fetchFiles();
+                },
+
+                fetchFiles() {
+                    this.isLoading = true;
+                    axios.get('/api/files')
+                        .then(response => {
+                            this.files = response.data;
+                            this.isLoading = false;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching files:', error);
+                            this.showToast('Error', 'Could not load files', 'error');
+                            this.isLoading = false;
+                        });
+                },
+
+                handleDrop(event) {
+                    this.isDragging = false;
+                    const files = event.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.uploadFile(files[0]);
+                    }
+                },
+
+                handleFileSelect(event) {
+                    const files = event.target.files;
+                    if (files.length > 0) {
+                        this.uploadFile(files[0]);
+                    }
+                },
+
+                uploadFile(file) {
+                    this.uploading = true;
+                    this.progress = 0;
+                    this.currentFileName = file.name;
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    axios.post('/api/upload', formData, {
+                        onUploadProgress: (progressEvent) => {
+                            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                            this.progress = percentCompleted;
+                        }
+                    })
+                    .then(response => {
+                        this.showToast('Success', 'File uploaded successfully', 'success');
+                        this.fetchFiles();
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        this.showToast('Error', 'Upload failed', 'error');
+                    })
+                    .finally(() => {
+                        // Delay slighty so user sees 100%
+                        setTimeout(() => {
+                            this.uploading = false;
+                            this.progress = 0;
+                            this.currentFileName = '';
+                        }, 500);
+                    });
+                },
+
+                showToast(title, message, type = 'success') {
+                    const id = Date.now();
+                    this.toasts.push({ id, title, message, type, visible: true });
+                    
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        const index = this.toasts.findIndex(t => t.id === id);
+                        if (index !== -1) this.toasts[index].visible = false;
+                        
+                        // Clean up array
+                        setTimeout(() => {
+                            this.toasts = this.toasts.filter(t => t.id !== id);
+                        }, 300);
+                    }, 3000);
+                },
+
+                getFileIcon(filename) {
+                    const ext = filename.split('.').pop().toLowerCase();
+                    const icons = {
+                        'pdf': 'fa-solid fa-file-pdf',
+                        'doc': 'fa-solid fa-file-word',
+                        'docx': 'fa-solid fa-file-word',
+                        'xls': 'fa-solid fa-file-excel',
+                        'xlsx': 'fa-solid fa-file-excel',
+                        'ppt': 'fa-solid fa-file-powerpoint',
+                        'pptx': 'fa-solid fa-file-powerpoint',
+                        'jpg': 'fa-solid fa-file-image',
+                        'jpeg': 'fa-solid fa-file-image',
+                        'png': 'fa-solid fa-file-image',
+                        'gif': 'fa-solid fa-file-image',
+                        'svg': 'fa-solid fa-file-image',
+                        'zip': 'fa-solid fa-file-zipper',
+                        'rar': 'fa-solid fa-file-zipper',
+                        'mp4': 'fa-solid fa-file-video',
+                        'mp3': 'fa-solid fa-file-audio',
+                        'txt': 'fa-solid fa-file-lines',
+                        'go': 'fa-brands fa-golang',
+                        'js': 'fa-brands fa-js',
+                        'html': 'fa-brands fa-html5',
+                        'css': 'fa-brands fa-css3',
+                        'py': 'fa-brands fa-python',
+                        'java': 'fa-brands fa-java'
+                    };
+                    return icons[ext] || 'fa-solid fa-file';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

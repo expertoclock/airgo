@@ -1,0 +1,12 @@
+# Ignore git directory
+.git
+
+# Ignore local uploads to keep the image clean
+uploads/
+
+# Ignore temporary files
+tmp/
+.DS_Store
+
+# Ignore potential local build artifacts
+airgo

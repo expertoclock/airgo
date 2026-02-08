@@ -1,0 +1,41 @@
+# Binaries
+airgo
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test Output
+*.out
+
+# Go Dependencies (if downloading locally into vendor)
+vendor/
+
+# Local Environment & Secrets (Security Critical)
+.env
+.env.local
+*.pem
+*.key
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project Specific
+uploads/*
+!uploads/.keep
+tmp/
+coverage.out
