@@ -1,31 +1,36 @@
-# Binaries
+# --- Binaries & Executables ---
 airgo
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+bin/
 
-# Test Output
-*.out
-
-# Go Dependencies (if downloading locally into vendor)
+# --- Go Specific ---
+go.sum
 vendor/
+*.test
+*.out
+coverage.txt
 
-# Local Environment & Secrets (Security Critical)
+# --- Local Secrets & Config (DevOps Best Practice) ---
 .env
-.env.local
+.env.*
+!.env.example
 *.pem
 *.key
+certs/
 
-# IDEs & Editors
+# --- IDEs & Editors ---
 .vscode/
 .idea/
 *.swp
 *.swo
-.DS_Store
+*.sublime-*
+.history/
 
-# OS generated files
+# --- Operating Systems ---
 .DS_Store
 .DS_Store?
 ._*
@@ -34,8 +39,16 @@ vendor/
 ehthumbs.db
 Thumbs.db
 
-# Project Specific
+# --- Project Specific ---
 uploads/*
 !uploads/.keep
 tmp/
-coverage.out
+logs/
+data/
+.docker-data/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
