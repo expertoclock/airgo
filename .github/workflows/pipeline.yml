@@ -25,13 +25,16 @@ jobs:
         with:
           go-version: '1.21' # Specify the Go version to match our Dockerfile
 
-      # Step 3: Run 'go vet' to analyze code for potential errors (static analysis).
-      # "./..." tells Go to check the root directory and all subdirectories.
+      # Step 3: Ensure dependencies are downloaded and go.sum is generated.
+      # This is necessary because go.sum might be missing from the initial push.
+      - name: Install Dependencies
+        run: go mod tidy
+
+      # Step 4: Run 'go vet' to analyze code for potential errors (static analysis).
       - name: Run Static Analysis (go vet)
         run: go vet ./...
 
-      # Step 4: Run unit tests to ensure code logic is correct.
-      # If any test fails, the pipeline stops here.
+      # Step 5: Run unit tests to ensure code logic is correct.
       - name: Run Unit Tests
         run: go test ./...
 
