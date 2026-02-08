@@ -8,7 +8,6 @@ airgo
 bin/
 
 # --- Go Specific ---
-go.sum
 vendor/
 *.test
 *.out
