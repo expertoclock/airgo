@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strconv"
 	"syscall"
 	"time"
@@ -32,12 +33,12 @@ type FileInfo struct {
 }
 
 type ServerStats struct {
-	Uptime      string `json:"uptime"`
-	GoVersion   string `json:"go_version"`
-	FileCount   int    `json:"file_count"`
-	TotalSize   string `json:"total_size"`
-	Platform    string `json:"platform"`
-	NumCPU      int    `json:"num_cpu"`
+	Uptime    string `json:"uptime"`
+	GoVersion string `json:"go_version"`
+	FileCount int    `json:"file_count"`
+	TotalSize string `json:"total_size"`
+	Platform  string `json:"platform"`
+	NumCPU    int    `json:"num_cpu"`
 }
 
 func main() {
@@ -101,7 +102,11 @@ func main() {
 		files := make([]FileInfo, 0)
 		for _, entry := range entries {
 			if !entry.IsDir() {
-				info, _ := entry.Info()
+				// Use os.Stat to get the most accurate ModTime
+				info, err := os.Stat(filepath.Join(UploadPath, entry.Name()))
+				if err != nil {
+					continue
+				}
 				files = append(files, FileInfo{
 					Name:    entry.Name(),
 					Size:    formatSize(info.Size()),
@@ -111,6 +116,12 @@ func main() {
 				})
 			}
 		}
+
+		// Sort by ModTime Descending (Newest First)
+		sort.Slice(files, func(i, j int) bool {
+			return files[i].ModTime.After(files[j].ModTime)
+		})
+
 		c.JSON(http.StatusOK, files)
 	})
 
@@ -147,9 +158,9 @@ func main() {
 
 	// --- SERVER ---
 	srv := &http.Server{
-		Addr: "0.0.0.0:" + Port,
-		Handler: r,
-		ReadTimeout: 1 * time.Hour, // Long timeout for huge files
+		Addr:         "0.0.0.0:" + Port,
+		Handler:      r,
+		ReadTimeout:  1 * time.Hour, // Long timeout for huge files
 		WriteTimeout: 1 * time.Hour,
 	}
 
@@ -195,20 +206,26 @@ func MaxBodySizeMiddleware(limit int64) gin.HandlerFunc {
 }
 
 func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists { return value }
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
 	return fallback
 }
 
 func getEnvInt(key string, fallback int) int {
 	if value, exists := os.LookupEnv(key); exists {
-		if i, err := strconv.Atoi(value); err == nil { return i }
+		if i, err := strconv.Atoi(value); err == nil {
+			return i
+		}
 	}
 	return fallback
 }
 
 func formatSize(bytes int64) string {
 	const unit = 1024
-	if bytes < unit { return fmt.Sprintf("%d B", bytes) }
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
 	div, exp := int64(unit), 0
 	for n := bytes / unit; n >= unit; n /= unit {
 		div *= unit
