@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	Port          = getEnv("PORT", "8080")
+	Port          = getEnv("PORT", "8081")
 	UploadPath    = getEnv("UPLOAD_PATH", "./uploads")
 	MaxUploadSize = getEnvInt("MAX_UPLOAD_SIZE_MB", 500) << 20
 	StartTime     time.Time
