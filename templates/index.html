@@ -1,232 +1,369 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AirGo | Next-Gen Share</title>
+    <title>AirGo | Nebula Edition</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
                     colors: {
-                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' },
-                        primary: '#00d0ff',
-                        accent: '#ff007a',
+                        nebula: {
+                            900: '#0B0F19',
+                            800: '#151B2B',
+                            light: '#E2E8F0',
+                        },
+                        accent: {
+                            cyan: '#00F0FF',
+                            purple: '#BD00FF',
+                            pink: '#FF0055',
+                        }
                     },
                     animation: {
-                        'slow-spin': 'spin 12s linear infinite',
-                        'float': 'float 3s ease-in-out infinite',
+                        'blob': 'blob 7s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
-                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         [x-cloak] { display: none !important; }
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .neon-glow { filter: drop-shadow(0 0 8px rgba(0, 208, 255, 0.4)); }
-        .gradient-text { background: linear-gradient(to right, #00d0ff, #ff007a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        body { background: radial-gradient(circle at top right, #1e293b, #020617); min-h-screen; }
+
+        body {
+            background-color: #0B0F19;
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+
+        /* Nebula Background */
+        .nebula-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 10% 10%, rgba(11, 15, 25, 0.95), rgba(11, 15, 25, 0.98));
+        }
+
+        .nebula-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: blob 10s infinite alternate;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
     </style>
 </head>
-<body class="text-slate-200 antialiased" x-data="airgoApp()">
+<body x-data="airgoApp()">
 
-    <!-- Ambient Background -->
-    <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div class="absolute top-1/4 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-        <div class="absolute bottom-1/4 -left-20 w-96 h-96 bg-accent/5 rounded-full blur-[120px] animate-pulse"></div>
+    <!-- Background Effects -->
+    <div class="nebula-bg">
+        <div class="nebula-glow bg-accent-purple w-96 h-96 top-0 -left-20 mix-blend-screen"></div>
+        <div class="nebula-glow bg-accent-cyan w-96 h-96 bottom-0 -right-20 mix-blend-screen animation-delay-2000"></div>
+        <div class="nebula-glow bg-accent-pink w-64 h-64 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20"></div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-6 py-10">
-        
-        <!-- Premium Header -->
-        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16">
-            <div class="flex items-center gap-5">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-primary blur-xl opacity-20 animate-pulse"></div>
-                    <div class="w-16 h-16 rounded-3xl bg-slate-900 border border-white/10 flex items-center justify-center relative">
-                        <i class="fa-solid fa-wind text-3xl gradient-text animate-float"></i>
+    <!-- Main Container -->
+    <div class="relative min-h-screen flex flex-col p-4 md:p-8 max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 animate-float">
+            <div class="flex items-center gap-4">
+                <div class="relative group cursor-pointer" @click="fetchStats(); fetchFiles()">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative w-14 h-14 bg-nebula-900 rounded-xl flex items-center justify-center border border-white/10">
+                        <i class="fa-solid fa-wind text-2xl text-transparent bg-clip-text bg-gradient-to-br from-accent-cyan to-accent-purple"></i>
                     </div>
                 </div>
                 <div>
-                    <h1 class="text-4xl font-black tracking-tighter text-white italic">AIR<span class="text-primary">GO</span></h1>
-                    <div class="flex items-center gap-3 mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></span> Live Engine</span>
-                        <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-                        <span x-text="stats.uptime || 'Booting...'"></span>
+                    <h1 class="font-display font-bold text-3xl tracking-tight text-white">Air<span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-cyan to-accent-purple">Go</span></h1>
+                    <div class="flex items-center gap-2 text-xs font-mono text-gray-500 uppercase tracking-widest mt-1">
+                        <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                        <span x-text="stats.uptime || 'System Active'"></span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-4">
-                <div class="glass px-6 py-3 rounded-2xl flex items-center gap-4">
-                    <i class="fa-solid fa-database text-primary"></i>
-                    <div>
-                        <p class="text-[10px] text-slate-500 font-black uppercase">Storage</p>
-                        <p class="text-sm font-bold text-white" x-text="stats.total_size || '0 B'"></p>
+            <div class="flex items-center gap-4">
+                 <!-- Stats Card -->
+                <div class="hidden md:flex glass-panel rounded-2xl px-5 py-2 items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Storage</p>
+                        <p class="text-sm font-display font-semibold text-white" x-text="stats.total_size || '0 B'"></p>
+                    </div>
+                    <div class="h-8 w-px bg-white/10"></div>
+                     <div class="text-right">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Files</p>
+                         <p class="text-sm font-display font-semibold text-white" x-text="stats.file_count || '0'"></p>
                     </div>
                 </div>
-                <button @click="showQRModal = true" class="glass px-6 py-3 rounded-2xl flex items-center gap-3 hover:bg-white/5 transition-all group">
-                    <i class="fa-solid fa-qrcode text-primary group-hover:scale-125 transition-transform"></i>
-                    <span class="text-sm font-bold">Connect Mobile</span>
+
+                <button @click="showQRModal = true" class="glass-panel group relative px-6 py-3 rounded-2xl overflow-hidden transition-all hover:border-accent-cyan/30">
+                    <div class="absolute inset-0 bg-accent-cyan/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    <div class="relative flex items-center gap-3">
+                        <i class="fa-solid fa-mobile-screen text-accent-cyan"></i>
+                        <span class="font-medium text-sm">Connect</span>
+                    </div>
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            
-            <!-- Side Panel: Upload & Batch (4 columns) -->
-            <div class="lg:col-span-4 space-y-8">
-                
-                <!-- Advanced Upload Zone -->
-                <div 
+        <!-- Main Content Grid -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+
+            <!-- Left Sidebar / Dropzone -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <!-- Dropzone -->
+                <div
                     @dragover.prevent="isDragging = true"
                     @dragleave.prevent="isDragging = false"
                     @drop.prevent="handleDrop($event)"
-                    class="relative aspect-square lg:aspect-video rounded-[40px] border-2 border-dashed transition-all duration-500 flex flex-col items-center justify-center overflow-hidden group"
-                    :class="isDragging ? 'border-primary bg-primary/10 shadow-[0_0_40px_rgba(0,208,255,0.1)]' : 'border-white/10 glass hover:border-white/20'"
+                    class="glass-panel rounded-3xl p-1 relative overflow-hidden group transition-all duration-300"
+                    :class="{'border-accent-cyan shadow-[0_0_30px_rgba(0,240,255,0.15)]': isDragging, 'hover:border-white/20': !isDragging}"
                 >
-                    <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" @change="handleFileSelect($event)">
-                    
-                    <div class="text-center p-8 transition-transform group-hover:scale-105" x-show="!uploading">
-                        <div class="w-20 h-20 rounded-full bg-slate-900/50 flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-2xl relative">
-                            <i class="fa-solid fa-plus text-2xl text-primary"></i>
-                            <div class="absolute inset-0 rounded-full border border-primary/30 animate-ping"></div>
-                        </div>
-                        <h3 class="text-xl font-black text-white italic">Instant Upload</h3>
-                        <p class="text-sm text-slate-500 mt-2">Drag files here or tap to explore</p>
-                    </div>
+                    <div class="bg-nebula-800/50 rounded-[20px] p-8 h-full flex flex-col items-center justify-center text-center border border-white/5 min-h-[300px] relative z-10">
+                        <input type="file" id="fileInput" class="hidden" @change="handleFileSelect($event)">
 
-                    <!-- Progress Visualization -->
-                    <div x-show="uploading" class="absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center p-10">
-                        <div class="w-full text-center">
-                            <h4 class="text-xs font-black uppercase tracking-[0.2em] text-primary mb-8">Processing Stream</h4>
-                            <div class="relative w-32 h-32 mx-auto mb-8">
-                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4" class="text-slate-800"></circle>
-                                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4" class="text-primary transition-all duration-200"
-                                            stroke-dasharray="283" :stroke-dashoffset="283 - (283 * progress / 100)" stroke-linecap="round"></circle>
+                        <div x-show="!uploading" class="space-y-6">
+                            <div class="w-20 h-20 mx-auto rounded-full bg-nebula-900 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-accent-cyan group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display font-bold text-xl text-white mb-2">Upload Files</h3>
+                                <p class="text-sm text-gray-400">Drag & drop or <span class="text-accent-cyan cursor-pointer hover:underline" @click="document.getElementById('fileInput').click()">browse</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div x-show="uploading" class="w-full text-center" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                            <div class="relative w-32 h-32 mx-auto mb-6">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="64" cy="64" r="56" fill="none" stroke="#1e293b" stroke-width="8"></circle>
+                                    <circle cx="64" cy="64" r="56" fill="none" stroke="url(#gradient)" stroke-width="8" stroke-dasharray="351.86" :stroke-dashoffset="351.86 - (351.86 * progress / 100)" stroke-linecap="round" class="transition-all duration-300"></circle>
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#00F0FF" />
+                                            <stop offset="100%" stop-color="#BD00FF" />
+                                        </linearGradient>
+                                    </defs>
                                 </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span class="text-2xl font-black text-white italic" x-text="progress + '%'"></span>
+                                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                    <span class="text-2xl font-bold font-display" x-text="progress + '%'"></span>
                                 </div>
                             </div>
-                            <p class="text-[10px] font-mono text-slate-500 truncate px-4" x-text="currentFileName"></p>
+                            <p class="text-xs text-accent-cyan font-mono animate-pulse" x-text="currentFileName"></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Batch Actions Panel -->
-                <div x-show="selectedFiles.length > 0" x-transition class="glass rounded-3xl p-6 border-accent/20">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-black text-accent uppercase tracking-widest" x-text="selectedFiles.length + ' selected'"></span>
-                        <button @click="selectedFiles = []" class="text-[10px] text-slate-500 hover:text-white uppercase font-bold">Clear</button>
+                <!-- Quick Actions (Selection) -->
+                <div x-show="selectedFiles.length > 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-5" x-transition:enter-end="opacity-100 translate-y-0" class="glass-panel p-6 rounded-3xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-semibold text-white"><span x-text="selectedFiles.length"></span> Selected</span>
+                        <button @click="selectedFiles = []" class="text-xs text-gray-500 hover:text-white transition-colors">Clear</button>
                     </div>
-                    <button @click="batchDelete()" class="w-full py-4 rounded-2xl bg-accent/10 border border-accent/30 text-accent font-black text-sm hover:bg-accent hover:text-white transition-all">
-                        <i class="fa-regular fa-trash-can mr-2"></i> Delete Selected
-                    </button>
+                    <div class="grid grid-cols-2 gap-3">
+                         <button @click="batchDelete" class="py-3 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all font-medium text-sm flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-trash-can"></i> Delete
+                        </button>
+                        <button class="py-3 rounded-xl bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 transition-all font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed opacity-50" title="Coming Soon">
+                            <i class="fa-solid fa-box-archive"></i> Archive
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Main Panel: File Repository (8 columns) -->
-            <div class="lg:col-span-8">
-                
-                <!-- Search & Layout Toggle -->
-                <div class="flex flex-col md:flex-row gap-5 mb-10">
-                    <div class="relative flex-1 group">
-                        <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-magnifying-glass text-slate-600 group-focus-within:text-primary transition-colors"></i>
-                        </div>
-                        <input type="text" x-model="search" placeholder="Filter repository by name or type..." 
-                               class="w-full bg-slate-900/40 border border-white/5 rounded-[24px] py-5 pl-14 pr-6 text-sm focus:outline-none focus:border-primary focus:bg-slate-900/60 transition-all">
+            <!-- Right Content / File Browser -->
+            <div class="lg:col-span-8 flex flex-col h-full">
+
+                <!-- Toolbar -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                    <!-- Search -->
+                    <div class="relative w-full sm:w-auto flex-1 max-w-md group">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-focus-within:text-accent-cyan transition-colors"></i>
+                        <input type="text" x-model="search" placeholder="Search files..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent-cyan/50 focus:bg-white/10 transition-all">
                     </div>
-                    <div class="flex gap-3">
-                        <button @click="viewMode = 'grid'" class="w-14 h-14 glass rounded-2xl flex items-center justify-center transition-all" :class="viewMode === 'grid' ? 'text-primary border-primary/40' : 'text-slate-500 border-white/5'">
+
+                    <!-- View Toggle -->
+                    <div class="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                        <button @click="viewMode = 'grid'" class="px-4 py-2 rounded-lg text-sm transition-all" :class="viewMode === 'grid' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'">
                             <i class="fa-solid fa-grip"></i>
                         </button>
-                        <button @click="viewMode = 'list'" class="w-14 h-14 glass rounded-2xl flex items-center justify-center transition-all" :class="viewMode === 'list' ? 'text-primary border-primary/40' : 'text-slate-500 border-white/5'">
+                        <button @click="viewMode = 'list'" class="px-4 py-2 rounded-lg text-sm transition-all" :class="viewMode === 'list' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'">
                             <i class="fa-solid fa-list"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- File Display -->
-                <div :class="viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-5' : 'space-y-4'">
-                    <template x-for="file in filteredFiles" :key="file.name">
-                        <div class="glass group relative rounded-3xl p-5 hover:bg-white/[0.04] transition-all cursor-pointer"
-                             @click="toggleSelect(file.name)" :class="selectedFiles.includes(file.name) ? 'border-primary/50 bg-primary/5' : ''">
-                            
-                            <!-- Selection Checkmark -->
-                            <div x-show="selectedFiles.includes(file.name)" class="absolute top-4 right-4 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-[0_0_12px_#00d0ff]">
-                                <i class="fa-solid fa-check text-[10px] text-slate-950"></i>
+                <!-- Content Area -->
+                <div class="relative min-h-[400px]">
+                    <!-- Loading Skeleton -->
+                    <div x-show="isLoading" class="grid grid-cols-2 md:grid-cols-3 gap-4 absolute inset-0">
+                        <template x-for="i in 6">
+                            <div class="glass-card rounded-2xl p-4 animate-pulse">
+                                <div class="w-10 h-10 bg-white/5 rounded-lg mb-4"></div>
+                                <div class="h-4 bg-white/5 rounded w-3/4 mb-2"></div>
+                                <div class="h-3 bg-white/5 rounded w-1/2"></div>
                             </div>
+                        </template>
+                    </div>
 
-                            <div class="flex items-center gap-5">
-                                <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-white/5 flex items-center justify-center text-2xl text-primary transition-transform group-hover:scale-110">
+                    <!-- File Grid -->
+                    <div x-show="!isLoading" :class="viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-4' : 'flex flex-col gap-3'">
+                        <template x-for="file in filteredFiles" :key="file.name">
+                            <div class="glass-card rounded-2xl p-4 group relative cursor-pointer"
+                                 :class="{'ring-2 ring-accent-cyan bg-accent-cyan/5': selectedFiles.includes(file.name), 'flex items-center gap-4': viewMode === 'list'}"
+                                 @click="toggleSelect(file.name)">
+
+                                <!-- Selection Indicator -->
+                                <div x-show="selectedFiles.includes(file.name)" class="absolute top-3 right-3 w-5 h-5 bg-accent-cyan rounded-full flex items-center justify-center shadow-lg z-20">
+                                    <i class="fa-solid fa-check text-[10px] text-black"></i>
+                                </div>
+
+                                <!-- Icon -->
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/5 flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300 shrink-0"
+                                     :class="getFileColor(file.name)">
                                     <i :class="getFileIcon(file.name)"></i>
                                 </div>
-                                <div class="min-w-0 flex-1">
-                                    <h4 class="text-white font-bold truncate tracking-tight text-sm" x-text="file.name"></h4>
-                                    <p class="text-[10px] font-mono text-slate-500 mt-1 uppercase" x-text="file.size + ' • ' + timeAgo(file.mod_time)"></p>
+
+                                <!-- details -->
+                                <div class="min-w-0 flex-1" :class="{'mt-4': viewMode === 'grid'}">
+                                    <h4 class="text-sm font-medium text-gray-200 truncate group-hover:text-white transition-colors" x-text="file.name"></h4>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <p class="text-[10px] text-gray-500 font-mono" x-text="file.size"></p>
+                                        <span class="w-1 h-1 rounded-full bg-gray-600"></span>
+                                        <p class="text-[10px] text-gray-500" x-text="timeAgo(file.mod_time)"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Actions Hover -->
+                                <div class="absolute inset-0 bg-nebula-900/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-2xl flex items-center justify-center gap-2 z-10" @click.stop>
+                                    <button @click="copyToClipboard(file.url)" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all" title="Copy Link">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+                                    <a :href="file.url" download class="w-10 h-10 rounded-xl bg-accent-cyan/10 hover:bg-accent-cyan/20 text-accent-cyan flex items-center justify-center backdrop-blur-md transition-all" title="Download">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                    <button @click="deleteFile(file.name)" class="w-10 h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center backdrop-blur-md transition-all" title="Delete">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
                                 </div>
                             </div>
+                        </template>
 
-                            <!-- Hover Actions -->
-                            <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 rounded-3xl" @click.stop>
-                                <button @click="copyToClipboard(file.url)" class="w-12 h-12 glass rounded-2xl hover:bg-primary hover:text-slate-950 transition-all">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                                <a :href="file.url" download class="w-12 h-12 glass rounded-2xl hover:bg-primary hover:text-slate-950 transition-all flex items-center justify-center">
-                                    <i class="fa-solid fa-download"></i>
-                                </a>
-                                <button @click="deleteFile(file.name)" class="w-12 h-12 glass rounded-2xl hover:bg-accent hover:text-white transition-all">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                </button>
-                            </div>
+                         <!-- Empty State -->
+                        <div x-show="filteredFiles.length === 0 && !isLoading" class="col-span-full py-20 text-center flex flex-col items-center justify-center opacity-50">
+                            <i class="fa-regular fa-folder-open text-4xl mb-4 text-white/20"></i>
+                            <p class="text-sm text-gray-500">No signals detected in this sector.</p>
                         </div>
-                    </template>
+                    </div>
                 </div>
+            </div>
+        </main>
+    </div>
 
-                <!-- Loading State -->
-                <div x-show="isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <template x-for="i in 4">
-                        <div class="h-28 glass rounded-[32px] animate-pulse"></div>
-                    </template>
+    <!-- QR Modal -->
+    <div x-show="showQRModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-nebula-900/90 backdrop-blur-xl"
+         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         @click.self="showQRModal = false" @keydown.escape.window="showQRModal = false">
+
+        <div class="glass-panel p-8 rounded-[40px] max-w-sm w-full relative text-center border-t border-accent-cyan/20 box-shadow-[0_0_50px_rgba(0,240,255,0.1)]">
+            <button @click="showQRModal = false" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <h3 class="font-display font-bold text-2xl text-white mb-1">Mobile Uplink</h3>
+            <p class="text-xs text-accent-cyan uppercase tracking-widest mb-8">Secure Local Connection</p>
+
+            <div class="bg-white p-4 rounded-3xl inline-block shadow-2xl mb-6">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="glass-card rounded-xl p-3 flex items-center justify-between gap-3 text-left group cursor-pointer hover:bg-white/10 transition-colors" @click="copyToClipboard(window.location.href)">
+                <div class="min-w-0">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Network Address</p>
+                    <p class="text-xs font-mono text-accent-cyan truncate" x-text="window.location.href"></p>
                 </div>
+                <i class="fa-regular fa-copy text-gray-500 group-hover:text-white"></i>
             </div>
         </div>
     </div>
 
-    <!-- QR & Connect Modal -->
-    <div x-show="showQRModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-2xl" @keydown.escape.window="showQRModal = false">
-        <div class="glass max-w-sm w-full p-10 rounded-[48px] text-center relative border-white/10" @click.away="showQRModal = false">
-            <button @click="showQRModal = false" class="absolute top-8 right-8 text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-2xl font-black text-white italic mb-2 tracking-tighter">Pair Device</h3>
-            <p class="text-xs text-slate-500 mb-8 uppercase tracking-widest font-bold">Local Access Protocol</p>
-            
-            <div id="qrcode" class="mx-auto bg-white p-6 rounded-[32px] inline-block mb-8 shadow-[0_0_60px_rgba(255,255,255,0.1)]"></div>
-            
-            <div class="bg-slate-900 border border-white/5 py-4 px-6 rounded-2xl break-all">
-                <p class="text-[10px] font-mono text-primary font-bold" x-text="window.location.href"></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Smart Notifications -->
-    <div class="fixed top-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-3">
+    <!-- Toasts -->
+    <div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
-            <div x-show="toast.visible" x-transition:enter="translate-y-[-100%] opacity-0" x-transition:enter-end="translate-y-0 opacity-100" 
-                 class="glass px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 min-w-[300px] border-white/20">
-                <div class="w-2 h-2 rounded-full" :class="toast.type === 'success' ? 'bg-primary' : 'bg-accent'"></div>
-                <span class="text-xs font-black text-white italic uppercase" x-text="toast.message"></span>
+            <div x-show="toast.visible"
+                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-[-20px]" x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0 scale-90"
+                 class="glass-panel px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 backdrop-blur-2xl border-white/20 min-w-[300px] justify-center">
+                <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check text-accent-cyan' : 'fa-solid fa-circle-exclamation text-red-500'"></i>
+                <span class="text-xs font-bold text-white tracking-wide" x-text="toast.message"></span>
             </div>
         </template>
     </div>
@@ -234,26 +371,47 @@
     <script>
         function airgoApp() {
             return {
-                files: [], search: '', stats: {}, isDragging: false, 
-                uploading: false, progress: 0, currentFileName: '', isLoading: true, 
-                toasts: [], showQRModal: false, viewMode: 'grid', selectedFiles: [],
+                files: [],
+                search: '',
+                stats: {},
+                isDragging: false,
+                uploading: false,
+                progress: 0,
+                currentFileName: '',
+                isLoading: true,
+                toasts: [],
+                showQRModal: false,
+                viewMode: 'grid',
+                selectedFiles: [],
 
                 init() {
                     this.refreshAll();
                     setInterval(() => { this.fetchStats(); this.fetchFiles(); }, 5000);
+
                     this.$watch('showQRModal', (val) => {
-                        if (val) this.$nextTick(() => {
-                            document.getElementById('qrcode').innerHTML = "";
-                            new QRCode(document.getElementById("qrcode"), {
-                                text: window.location.href, width: 200, height: 200, colorDark: "#020617", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+                        if (val) {
+                            this.$nextTick(() => {
+                                document.getElementById('qrcode').innerHTML = "";
+                                new QRCode(document.getElementById("qrcode"), {
+                                    text: window.location.href,
+                                    width: 180,
+                                    height: 180,
+                                    colorDark: "#0B0F19",
+                                    colorLight: "#ffffff",
+                                    correctLevel: QRCode.CorrectLevel.H
+                                });
                             });
-                        });
+                        }
                     });
                 },
-                
-                refreshAll() { this.fetchFiles(); this.fetchStats(); },
-                
+
+                refreshAll() {
+                    this.fetchFiles();
+                    this.fetchStats();
+                },
+
                 get filteredFiles() {
+                    if (!this.search) return this.files;
                     return this.files.filter(f => f.name.toLowerCase().includes(this.search.toLowerCase()));
                 },
 
@@ -265,43 +423,57 @@
                     }
                 },
 
+                handleDrop(e) {
+                    this.isDragging = false;
+                    if (e.dataTransfer.files.length) this.uploadFile(e.dataTransfer.files[0]);
+                },
+
+                handleFileSelect(e) {
+                    if (e.target.files.length) this.uploadFile(e.target.files[0]);
+                },
+
+                uploadFile(file) {
+                    this.uploading = true;
+                    this.progress = 0;
+                    this.currentFileName = file.name;
+
+                    const fd = new FormData();
+                    fd.append('file', file);
+
+                    axios.post('/api/upload', fd, {
+                        onUploadProgress: (p) => this.progress = Math.round((p.loaded * 100) / p.total)
+                    })
+                    .then(() => {
+                        this.showToast('Transmission Complete', 'success');
+                        this.refreshAll();
+                    })
+                    .catch(() => this.showToast('Transmission Interrupted', 'error'))
+                    .finally(() => setTimeout(() => this.uploading = false, 800));
+                },
+
                 batchDelete() {
-                    if (!confirm(`Delete ${this.selectedFiles.length} files permanently?`)) return;
+                    if (!confirm(`Delete ${this.selectedFiles.length} files? This cannot be undone.`)) return;
+
                     Promise.all(this.selectedFiles.map(name => axios.delete(`/api/files/${name}`)))
                         .then(() => {
-                            this.showToast(`${this.selectedFiles.length} files removed`, 'success');
+                            this.showToast(`${this.selectedFiles.length} files vaporized`, 'success');
                             this.selectedFiles = [];
                             this.refreshAll();
                         });
                 },
 
-                fetchFiles() {
-                    axios.get('/api/files').then(res => { this.files = res.data; this.isLoading = false; });
-                },
-
-                fetchStats() {
-                    axios.get('/api/stats').then(res => { this.stats = res.data; });
-                },
-
-                handleDrop(e) { this.isDragging = false; if (e.dataTransfer.files.length) this.uploadFile(e.dataTransfer.files[0]); },
-                handleFileSelect(e) { if (e.target.files.length) this.uploadFile(e.target.files[0]); },
-
-                uploadFile(file) {
-                    this.uploading = true; this.progress = 0; this.currentFileName = file.name;
-                    const fd = new FormData(); fd.append('file', file);
-                    axios.post('/api/upload', fd, { onUploadProgress: (p) => this.progress = Math.round((p.loaded * 100) / p.total) })
-                        .then(() => { this.showToast('Transfer Synchronized', 'success'); this.refreshAll(); })
-                        .catch(() => this.showToast('Sync Failed', 'error'))
-                        .finally(() => setTimeout(() => this.uploading = false, 500));
-                },
-
                 deleteFile(name) {
-                    if(!confirm('Erase this data trace?')) return;
-                    axios.delete(`/api/files/${name}`).then(() => { this.showToast('Trace Erased', 'success'); this.refreshAll(); });
+                    if(!confirm('Permanently vaporize this file?')) return;
+                    axios.delete(`/api/files/${name}`).then(() => {
+                        this.showToast('File Vaporized', 'success');
+                        this.refreshAll();
+                    });
                 },
 
-                copyToClipboard(url) {
-                    navigator.clipboard.writeText(window.location.origin + url).then(() => this.showToast('Pointer Copied', 'success'));
+                copyToClipboard(text) {
+                    // Handle relative URLs
+                    const content = text.startsWith('/') ? window.location.origin + text : text;
+                    navigator.clipboard.writeText(content).then(() => this.showToast('Coordinates Copied', 'success'));
                 },
 
                 showToast(message, type) {
@@ -310,20 +482,55 @@
                     setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 3000);
                 },
 
+                fetchFiles() {
+                    axios.get('/api/files').then(res => {
+                        this.files = res.data;
+                        this.isLoading = false;
+                    });
+                },
+
+                fetchStats() {
+                    axios.get('/api/stats').then(res => { this.stats = res.data; });
+                },
+
                 timeAgo(dateStr) {
-                    const seconds = Math.floor((new Date() - new Date(dateStr)) / 1000);
-                    if (seconds < 60) return 'Just now';
-                    const minutes = Math.floor(seconds / 60);
-                    if (minutes < 60) return minutes + 'm ago';
-                    const hours = Math.floor(minutes / 60);
-                    if (hours < 24) return hours + 'h ago';
-                    return Math.floor(hours / 24) + 'd ago';
+                    const diff = (new Date() - new Date(dateStr)) / 1000;
+                    if (diff < 60) return 'Just now';
+                    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+                    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+                    return Math.floor(diff / 86400) + 'd ago';
                 },
 
                 getFileIcon(fn) {
                     const ext = fn.split('.').pop().toLowerCase();
-                    const map = { 'pdf': 'fa-solid fa-file-pdf', 'jpg': 'fa-solid fa-file-image', 'png': 'fa-solid fa-file-image', 'zip': 'fa-solid fa-file-zipper', 'mp4': 'fa-solid fa-file-video', 'mp3': 'fa-solid fa-file-audio', 'txt': 'fa-solid fa-file-lines' };
-                    return map[ext] || 'fa-solid fa-file-code';
+                    const map = {
+                        'pdf': 'fa-regular fa-file-pdf',
+                        'jpg': 'fa-regular fa-image',
+                        'png': 'fa-regular fa-image',
+                        'zip': 'fa-regular fa-file-zipper',
+                        'mp4': 'fa-regular fa-file-video',
+                        'mp3': 'fa-regular fa-file-audio',
+                        'txt': 'fa-regular fa-file-lines',
+                        'go': 'fa-brands fa-golang',
+                        'html': 'fa-brands fa-html5',
+                        'css': 'fa-brands fa-css3',
+                        'js': 'fa-brands fa-js'
+                    };
+                    return map[ext] || 'fa-regular fa-file';
+                },
+
+                getFileColor(fn) {
+                    const ext = fn.split('.').pop().toLowerCase();
+                    const map = {
+                        'pdf': 'text-red-400',
+                        'jpg': 'text-purple-400', 'png': 'text-purple-400',
+                        'zip': 'text-yellow-400',
+                        'mp4': 'text-pink-400',
+                        'mp3': 'text-green-400',
+                        'txt': 'text-gray-400',
+                         'go': 'text-cyan-400',
+                    };
+                    return map[ext] || 'text-accent-cyan';
                 }
             }
         }
