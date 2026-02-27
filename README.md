@@ -1,58 +1,55 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/expertoclock/airgo/main/assets/logo.png" alt="AirGo Logo" width="120" onerror="this.style.display='none'"/>
+# 🚀 AirGo: Midnight Edition
 
-  # 🚀 AirGo: Midnight Edition
-  
-  **High-Performance, Secure, & Orchestrated LAN File Sharing**
+**High-Performance, Secure, & Orchestrated LAN File Sharing**
 
-  AirGo is a lightweight, futuristic file-sharing platform designed specifically for Local Area Networks (LAN). Built from the ground up to combine **extreme backend performance** with a **premium, glassmorphic user experience**.
+AirGo is a lightweight, futuristic file-sharing platform designed specifically for Local Area Networks (LAN). Built from the ground up to combine **extreme backend performance** with a **premium, glassmorphic user experience**.
 
-  [![Go Version](https://img.shields.io/badge/Go-1.23-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev/)
-  [![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-  <br>
-  [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-  [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
-  [![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
-  [![GitHub Actions](https://img.shields.io/badge/Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
-  [![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)](LICENSE)
+[![Go Version](https://img.shields.io/badge/Go-1.23-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev/)
+[![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-  <br>
-  <i>Lightning fast uploads. Zero cloud dependencies. Complete data sovereignty.</i>
-  <br><br>
-</div>
+
+<i>Lightning fast uploads. Zero cloud dependencies. Complete data sovereignty.</i>
+
 
 ---
 
-## ✦ Table of Contents
-- [✨ Key Features](#-key-features)
-- [🏗 Architecture & DevOps](#-architecture--devops)
-- [🚀 Quick Start & Workflows](#-quick-start--workflows)
+## Table of Contents
+- [Key Features](#key-features)
+- [Architecture & DevOps](#architecture--devops)
+- [Quick Start & Workflows](#quick-start--workflows)
   - [1. Developer Workflow (Docker)](#1-the-developer-workflow-local-docker)
   - [2. Administrator Workflow (Kubernetes)](#2-the-administrator-workflow-kubernetes--monitoring)
-- [📱 LAN Access (Mobile)](#-lan-access-mobile)
-- [📂 Project Structure](#-project-structure)
-- [⚙️ Configuration](#️-configuration)
-- [🔒 Security Constraints](#-security-constraints)
+- [LAN Access (Mobile)](#lan-access-mobile)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [Security Constraints](#security-constraints)
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 | Feature | Description |
 | :--- | :--- |
-| **⚡ Blazing Fast Engine** | Powered by Go's high-concurrency model for saturated link-speed transfers. |
-| **🌌 Midnight Luxury UI** | Breathtaking glassmorphism design, dark mode aesthetics, driven by Tailwind CSS and Alpine.js. |
-| **🎯 Zero-Friction UX** | Seamless Drag & Drop zones with highly responsive live-progress feedback. |
-| **☸️ Orchestration Ready** | Ships with hardened Kubernetes (K8s) manifests for instant horizontal scaling. |
-| **📊 Advanced Monitoring** | Native Prometheus and Grafana integration via Helm dashboards. |
-| **🤖 CI/CD Automation** | Fully automated GitHub Actions pipeline (Lint, Build, Test, Docker Build, K8s Deploy). |
+| **Blazing Fast Engine** | Powered by Go's high-concurrency model for saturated link-speed transfers. |
+| **Midnight Luxury UI** | Breathtaking glassmorphism design, dark mode aesthetics, driven by Tailwind CSS and Alpine.js. |
+| **Zero-Friction UX** | Seamless Drag & Drop zones with highly responsive live-progress feedback. |
+| **Orchestration Ready** | Ships with hardened Kubernetes (K8s) manifests for instant horizontal scaling. |
+| **Advanced Monitoring** | Native Prometheus and Grafana integration via Helm dashboards. |
+| **CI/CD Automation** | Fully automated GitHub Actions pipeline (Lint, Build, Test, Docker Build, K8s Deploy). |
 
 ---
 
-## 🏗 Architecture & DevOps
+## Architecture & DevOps
 
 AirGo employs a modern, robust pipeline from code commit to cluster deployment. 
+
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)](https://grafana.com/)
+[![GitHub Actions](https://img.shields.io/badge/Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+
 
 ```mermaid
 graph TD
@@ -90,7 +87,7 @@ graph TD
 
 ---
 
-## 🚀 Quick Start & Workflows
+## Quick Start & Workflows
 
 AirGo supports two **separate, alternative** workflows depending on your operational requirements. You should employ *either* the Docker workflow *or* the Kubernetes workflow, but not both simultaneously.
 
@@ -133,7 +130,7 @@ make k8s-down
 
 ---
 
-## 📱 LAN Access (Mobile)
+## LAN Access (Mobile)
 
 AirGo is designed to frictionlessly bridge your desktop and mobile environments.
 
@@ -177,7 +174,7 @@ Environment variables drive the operational behavior (via `.env` or injected sec
 
 ---
 
-## 🛠 Complete Automation Suite (Makefile)
+## Complete Automation Suite (Makefile)
 
 <details>
 <summary><b>Click to expand available Make macros</b></summary>
