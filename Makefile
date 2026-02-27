@@ -3,7 +3,7 @@
 APP_NAME := airgo
 IMAGE_NAME := airgo:latest
 
-.PHONY: help build run up down clean test lint
+.PHONY: help build run up down clean test lint test-docker tidy rebuild prune logs url qr security k8s-start k8s-deploy k8s-down k8s-status k8s-url k8s-grafana
 
 help: ## Show this help message
 	@echo "AirGo will be available at http://localhost:8081"
@@ -64,3 +64,31 @@ clean: ## Clean up binaries and temporary files
 security: ## Run basic security check (requires trivy installed, optional)
 	@echo "Scanning for vulnerabilities..."
 	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image $(IMAGE_NAME)
+
+k8s-start: ## Start the Minikube Kubernetes cluster
+	minikube start
+
+k8s-deploy: k8s-start ## Build and deploy the application to Kubernetes
+	@eval $$(minikube docker-env) && \
+	docker build -t airgo:latest . && \
+	kubectl apply -f k8s/deployment.yaml && \
+	kubectl apply -f k8s/service.yaml
+	@echo "Deployment applied. Run 'make k8s-status' to check."
+
+k8s-down: ## Remove the application from Kubernetes
+	kubectl delete -f k8s/deployment.yaml --ignore-not-found
+	kubectl delete -f k8s/service.yaml --ignore-not-found
+
+k8s-status: ## Check Kubernetes pods and services
+	kubectl get pods
+	kubectl get svc
+
+k8s-url: ## Get the URL to access AirGo in Minikube
+	@echo "\033[32m\033[1mFetching Minikube service URL...\033[0m"
+	minikube service airgo-service --url
+
+k8s-grafana: ## Open the Grafana monitoring dashboard locally
+	@echo "Fetching Grafana admin password..."
+	@kubectl --namespace monitoring get secret prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo ""
+	@echo "Forwarding port 3000 to Grafana. Open http://localhost:3000 in your browser."
+	kubectl port-forward svc/prometheus-grafana -n monitoring 3000:80
