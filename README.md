@@ -31,30 +31,43 @@ AirGo is a lightweight, futuristic, and secure file-sharing tool designed specif
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started & Workflows
 
-### Prerequisites
+AirGo supports two **separate, alternative** workflows depending on your needs. You should run *either* the Docker workflow *or* the Kubernetes workflow, not both at the same time. 
 
-- [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Make](https://www.gnu.org/software/make/) (Optional, but recommended)
+### 1. The Developer Workflow (Local Docker)
+*Best for quick testing, development, and simple local file sharing.*
 
-### Quick Start (The DevOps Way)
-
-1. **Clone the repository:**
-   ```bash
-   git clone git@github.com:expertoclock/airgo.git
-   cd airgo
-   ```
-
-2. **Start the application:**
+1. **Start the application:**
    ```bash
    make up
    ```
+2. **Access the tool:** Open `http://localhost:8081` (or your LAN IP).
+3. **Stop & Clean:**
+   ```bash
+   make down
+   ```
 
-3. **Access the tool:**
-   - Locally: Open `http://localhost:8081`.
-   - On your LAN (Mobile/Other PCs): Open `http://<your-laptop-ip>:8081`.
-     *(Find your IP using `hostname -I`)*.
+### 2. The Administrator Workflow (Kubernetes & Monitoring)
+*Best for studying DevOps, CI/CD, and running a resilient cluster with monitoring.*
+
+1. **Deploy to Minikube:**
+   ```bash
+   make k8s-deploy
+   ```
+   *(This starts Minikube, builds the image inside the cluster, and applies replicas).*
+2. **Access the tool:**
+   ```bash
+   make k8s-url
+   ```
+   *(This will automatically provide the Kubernetes exposed URL and open it in your browser).*
+3. **Verify & Monitor:**
+   - Check status: `make k8s-status`
+   - Open Grafana monitoring: `make k8s-grafana`
+3. **Teardown Cluster App:**
+   ```bash
+   make k8s-down
+   ```
 
 ---
 
@@ -106,7 +119,13 @@ AirGo can be configured using environment variables in the `compose.yml` or a `.
 | `make down` | Stop and remove containers |
 | `make logs` | Follow application logs |
 | `make clean` | Remove binaries and clear uploads |
+| `make prune` | Remove all unused Docker build cache |
 | `make test` | Run backend unit tests |
+| `make k8s-deploy` | Build and deploy the app to Minikube Kubernetes |
+| `make k8s-url` | Get the URL to access AirGo exposed by Minikube |
+| `make k8s-down` | Remove the app from Kubernetes |
+| `make k8s-status` | Check Kubernetes pods and services |
+| `make k8s-grafana` | Open the Grafana monitoring dashboard |
 
 ---
 
