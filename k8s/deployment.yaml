@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airgo-deployment
+  labels:
+    app: airgo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: airgo
+  template:
+    metadata:
+      labels:
+        app: airgo
+    spec:
+      containers:
+      - name: airgo
+        # If deploying to a remote cluster, change this to a registry image
+        image: airgo:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        env:
+        - name: GIN_MODE
+          value: "release"
+        - name: PORT
+          value: "8081"
+        - name: UPLOAD_PATH
+          value: "/app/uploads"
